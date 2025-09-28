@@ -1,112 +1,946 @@
-<!DOCTYPE html>
+// Initialize all functionality when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setupInputValidation();
+            setupModeButtons();
+            setupDropdown();
+            setupTimeDisplay();
+        });
+
+        // Setup mode selection functionality
+        function setupModeButtons() {
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            
+            modeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    modeButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+        }
+
+        // Setup dropdown functionality
+        function setupDropdown() {
+            const selectBtn = document.getElementById('selectBtn');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const selectedOption = document.getElementById('selectedOption');
+            const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+            if (selectBtn && dropdownMenu && selectedOption) {
+                selectBtn.addEventListener('click', () => {
+                    selectBtn.classList.toggle('open');
+                    dropdownMenu.classList.toggle('show');
+                });
+
+                dropdownItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const value = item.getAttribute('data-value');
+                        const text = item.textContent;
+                        selectedOption.textContent = text;
+                        selectBtn.classList.remove('open');
+                        dropdownMenu.classList.remove('show');
+                    });
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!selectBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        selectBtn.classList.remove('open');
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+            }
+        }
+
+        // Setup time display
+        function setupTimeDisplay() {
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: false
+                }) + '.' + now.getMilliseconds().toString().padStart(3, '0');
+                
+                const timeElement = document.getElementById('currentTime');
+                if (timeElement) {
+                    timeElement.textContent = timeString;
+                }
+            }
+
+            // Update time immediately and then every 10ms for smooth millisec<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NPK Hydroponic Simulation</title>
-<style>
-  body { font-family: Arial, sans-serif; background: #e2e8f0; padding: 20px; }
-  h2 { text-align: center; margin-bottom: 20px; }
-  .inputs { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-  .inputs label { display: flex; flex-direction: column; font-size: 14px; }
-  button { padding: 10px 15px; cursor: pointer; }
-  .controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-  .control-btn.active { background: #22c55e; color: white; }
-  .hydroponic-section { position: relative; margin: 0 auto; width: 500px; height: 400px; border: 1px solid #94a3b8; background: white; border-radius: 15px; }
-  .ai-module { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #4f46e5; color: white; padding: 10px 20px; border-radius: 25px; font-weight: 500; }
-  .plant-image { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 100px; height: 150px; background: #4caf50; border-radius: 10px; }
-  .nutrient { position: absolute; width: 80px; height: 30px; background: #3b82f6; color: white; text-align: center; line-height: 30px; border-radius: 10px; }
-  .nutrogen { top: 60px; left: 20px; }
-  .potassium { top: 150px; left: 20px; }
-  .phosphorus { top: 240px; left: 20px; }
-  .tank-pump { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #3b82f6; width: 100px; height: 30px; border-radius: 10px; text-align: center; line-height: 30px; color: white; }
-  .wire-segment, .pipe-segment { position: absolute; background: #dc2626; transition: all 0.3s ease; }
-  .wire-segment.active, .pipe-segment.active { background: #22c55e; box-shadow: 0 0 5px #22c55e; }
-  /* Example wire/pipes paths (simplified) */
-  #wireNitrogen { top: 75px; left: 100px; width: 100px; height: 4px; }
-  #pipeNitrogenTank { top: 75px; left: 200px; width: 20px; height: 100px; }
-  #wirePhosphorus { top: 255px; left: 100px; width: 100px; height: 4px; }
-  #pipePhosphorusTank { top: 255px; left: 200px; width: 20px; height: 100px; }
-  #wirePotassium { top: 165px; left: 100px; width: 100px; height: 4px; }
-  #pipePotassiumTank { top: 165px; left: 200px; width: 20px; height: 100px; }
-  #pipeTankPlant { top: 355px; left: 210px; width: 20px; height: 50px; background: #64748b; }
-  #pipeTankPlant.active { background: #22c55e; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NKP Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .top-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .left-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .center-modes {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .right-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-end;
+            min-width: 150px;
+        }
+
+        .submit-section {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .mode-btn {
+            background: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+            width: 60px;
+            height: 45px;
+        }
+
+        .mode-btn.active {
+            background: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .mode-btn:hover:not(.active) {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        .select-dropdown {
+            position: relative;
+        }
+
+        .select-btn {
+            background: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+            min-width: 120px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .select-btn:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        .select-btn::after {
+            content: '▼';
+            font-size: 10px;
+            margin-left: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .select-btn.open::after {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(-10px);
+            visibility: hidden;
+            transition: all 0.3s ease;
+            margin-top: 5px;
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .dropdown-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            border-radius: 15px;
+            margin: 5px;
+        }
+
+        .dropdown-item:hover {
+            background: #f1f5f9;
+        }
+
+        .current-time {
+            background: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            font-family: 'Courier New', monospace;
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .input-label {
+            background: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            width: 140px;
+            text-align: center;
+        }
+
+        .input-field {
+            flex: 1;
+            background: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: block;
+            min: 0;
+            max: 1000;
+        }
+
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .input-limits {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 5px;
+            text-align: center;
+            font-style: italic;
+        }
+
+        .threshold-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .threshold-info h4 {
+            color: white;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .threshold-list {
+            display: flex;
+            justify-content: space-around;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .threshold-item {
+            text-align: center;
+        }
+
+        .threshold-value {
+            font-weight: bold;
+            color: #fbbf24;
+        }
+
+        .input-indicator {
+            width: 25px;
+            height: 25px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-left: auto;
+        }
+
+        /* Divider line */
+        .divider {
+            width: 100%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            margin: 40px 0;
+        }
+
+        /* Hydroponic System Section */
+        .hydroponic-section {
+            position: relative;
+            min-height: 500px;
+            padding: 40px 0;
+        }
+
+        .system-container {
+            position: relative;
+            width: 100%;
+            height: 450px;
+        }
+
+        .plant-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 280px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 280"><rect x="50" y="200" width="100" height="80" fill="%23D2B48C" rx="10"/><rect x="40" y="180" width="120" height="100" fill="%23CD853F" rx="15"/><circle cx="100" cy="160" r="80" fill="%234CAF50" opacity="0.8"/><path d="M60 140 Q100 80 140 140" fill="%2332CD32"/><path d="M70 160 Q100 100 130 160" fill="%2332CD32"/><path d="M50 180 Q100 120 150 180" fill="%2332CD32"/><text x="100" y="250" text-anchor="middle" fill="white" font-size="12">Lettuce Plant</text></svg>') center/contain no-repeat;
+            border-radius: 15px;
+            z-index: 10;
+        }
+
+        .ai-module {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4f46e5;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .sensor {
+            position: absolute;
+            background: #6366f1;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .sensor.camera {
+            top: 50px;
+            right: 50px;
+        }
+
+        .sensor.moisture {
+            top: 130px;
+            right: 50px;
+        }
+
+        .sensor.light {
+            top: 210px;
+            right: 50px;
+        }
+
+        .nutrient {
+            position: absolute;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .nutrient.nitrogen {
+            top: 80px;
+            left: 50px;
+        }
+
+        .nutrient.potassium {
+            top: 180px;
+            left: 50px;
+        }
+
+        .nutrient.sodium {
+            top: 280px;
+            left: 50px;
+        }
+
+        .tank-pump {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #3b82f6;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Separate Angular Wires from Left Side of Nutrients - RED by default */
+        .wire-segment {
+            position: absolute;
+            background: linear-gradient(90deg, #dc2626, #b91c1c, #dc2626);
+            height: 3px;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .wire-segment.active {
+            background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e) !important;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6) !important;
+        }
+
+        /* Nitrogen Wire Path (AI → Left → Down → Right to Nitrogen left side) */
+        .wire-nitrogen-h1 { top: 65px; left: 200px; width: 90px; height: 3px; }  /* AI to left */
+        .wire-nitrogen-v1 { top: 65px; left: 200px; width: 3px; height: 30px; }   /* Down */
+        .wire-nitrogen-h2 { top: 92px; left: 60px; width: 143px; height: 3px; }   /* Right to Nitrogen left side */
+
+        /* Potassium Wire Path (AI → Left → Down → Right to Potassium left side) */
+        .wire-potassium-h1 { top: 65px; left: 180px; width: 110px; height: 3px; } /* AI to left */
+        .wire-potassium-v1 { top: 65px; left: 180px; width: 3px; height: 130px; } /* Down */
+        .wire-potassium-h2 { top: 192px; left: 60px; width: 123px; height: 3px; }  /* Right to Potassium left side */
+
+        /* Sodium Wire Path (AI → Left → Down → Right to Sodium left side) */
+        .wire-sodium-h1 { top: 65px; left: 160px; width: 130px; height: 3px; }   /* AI to left */
+        .wire-sodium-v1 { top: 65px; left: 160px; width: 3px; height: 230px; }   /* Down */
+        .wire-sodium-h2 { top: 292px; left: 60px; width: 103px; height: 3px; }    /* Right to Sodium left side */
+
+        /* Pipe segments (Nutrients to Tank) - Keep existing */
+        .pipe-segment {
+            position: absolute;
+            background: linear-gradient(90deg, #64748b, #94a3b8, #64748b);
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .pipe-segment.active {
+            background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e) !important;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6) !important;
+        }
+
+        /* Angular pipes from Nitrogen to Tank */
+        .pipe-nitrogen-tank-h1 { top: 102px; left: 140px; width: 100px; height: 6px; }
+        .pipe-nitrogen-tank-v1 { top: 102px; left: 237px; width: 6px; height: 250px; }
+        .pipe-nitrogen-tank-h2 { top: 349px; left: 237px; width: 145px; height: 6px; }
+
+        /* Angular pipes from Potassium to Tank */
+        .pipe-potassium-tank-h1 { top: 202px; left: 140px; width: 150px; height: 6px; }
+        .pipe-potassium-tank-v1 { top: 202px; left: 287px; width: 6px; height: 150px; }
+        .pipe-potassium-tank-h2 { top: 349px; left: 287px; width: 95px; height: 6px; }
+
+        /* Angular pipes from Sodium to Tank */
+        .pipe-sodium-tank-h1 { top: 302px; left: 140px; width: 200px; height: 6px; }
+        .pipe-sodium-tank-v1 { top: 302px; left: 337px; width: 6px; height: 50px; }
+        .pipe-sodium-tank-h2 { top: 349px; left: 337px; width: 45px; height: 6px; }
+
+        /* Main pipe from Tank to Plant (vertical) */
+        .pipe-tank-plant {
+            position: absolute;
+            bottom: 90px;
+            left: 50%;
+            width: 6px;
+            height: 60px;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, #64748b, #94a3b8, #64748b);
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+
+        .pipe-tank-plant.active {
+            background: linear-gradient(180deg, #22c55e, #16a34a, #22c55e) !important;
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.6) !important;
+        }
+
+        /* Data wire segments (AI to Sensors) - Keep existing */
+        .data-wire-segment {
+            position: absolute;
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8, #3b82f6);
+            height: 2px;
+            border-radius: 1px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        /* Angular data wires from AI to Camera */
+        .data-wire-ai-camera-h1 { top: 64px; right: 140px; width: 100px; height: 2px; }
+        .data-wire-ai-camera-h2 { top: 64px; right: 50px; width: 92px; height: 2px; }
+
+        /* Angular data wires from AI to Moisture */
+        .data-wire-ai-moisture-h1 { top: 64px; right: 140px; width: 100px; height: 2px; }
+        .data-wire-ai-moisture-v1 { top: 64px; right: 142px; width: 2px; height: 80px; }
+        .data-wire-ai-moisture-h2 { top: 142px; right: 50px; width: 94px; height: 2px; }
+
+        /* Angular data wires from AI to Light */
+        .data-wire-ai-light-h1 { top: 64px; right: 140px; width: 100px; height: 2px; }
+        .data-wire-ai-light-v1 { top: 64px; right: 142px; width: 2px; height: 160px; }
+        .data-wire-ai-light-h2 { top: 222px; right: 50px; width: 94px; height: 2px; }
+
+        .control-panel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: white;
+            border: 2px solid #4f46e5;
+            color: #4f46e5;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .control-btn.active {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .top-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .left-inputs, .center-modes, .right-controls {
+                width: 100%;
+                align-items: center;
+            }
+            
+            .system-container {
+                height: 300px;
+            }
+            
+            .plant-image {
+                width: 120px;
+                height: 160px;
+            }
+            
+            .sensor, .nutrient {
+                font-size: 10px;
+                padding: 8px 12px;
+            }
+            
+            .connection-line {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <!-- Threshold Information Panel -->
+        <div class="threshold-info">
+            <h4>🎯 NPK Activation Thresholds</h4>
+            <div class="threshold-list">
+                <div class="threshold-item">
+                    <div>Nitrogen (N)</div>
+                    <div class="threshold-value">&lt; 50 ppm</div>
+                </div>
+                <div class="threshold-item">
+                    <div>Potassium (K)</div>
+                    <div class="threshold-value">&lt; 60 ppm</div>
+                </div>
+                <div class="threshold-item">
+                    <div>Phosphorus (P)</div>
+                    <div class="threshold-value">&lt; 40 ppm</div>
+                </div>
+            </div>
+        </div>
 
-<h2>NPK Hydroponic Simulation</h2>
+        <div class="top-section">
+            <div class="left-inputs">
+                <div class="input-group">
+                    <div class="input-label">Nitrogen</div>
+                    <input type="number" class="input-field" placeholder="Enter N value" id="nitrogenInput" min="0" max="1000" step="0.1">
+                    <div class="input-indicator"></div>
+                </div>
+                <div class="input-limits">Range: 0-1000 ppm</div>
+                
+                <div class="input-group">
+                    <div class="input-label">Potassium</div>
+                    <input type="number" class="input-field" placeholder="Enter K value" id="potassiumInput" min="0" max="1000" step="0.1">
+                    <div class="input-indicator"></div>
+                </div>
+                <div class="input-limits">Range: 0-1000 ppm</div>
+                
+                <div class="input-group">
+                    <div class="input-label">Phosphorus</div>
+                    <input type="number" class="input-field" placeholder="Enter P value" id="sodiumInput" min="0" max="1000" step="0.1">
+                    <div class="input-indicator"></div>
+                </div>
+                <div class="input-limits">Range: 0-1000 ppm</div>
+            </div>
 
-<div class="inputs">
-  <label>Nitrogen (N): <input type="number" id="nitrogen" value="20"></label>
-  <label>Phosphorus (P): <input type="number" id="phosphorus" value="20"></label>
-  <label>Potassium (K): <input type="number" id="potassium" value="20"></label>
-  <button id="analyzeBtn">Analyze NPK Values</button>
-</div>
+            <div class="center-modes">
+                <button class="mode-btn active" data-mode="AI">AI</button>
+                <button class="mode-btn" data-mode="H">H</button>
+            </div>
 
-<div class="controls">
-  <button class="control-btn nitrogen" onclick="activateNutrient('nitrogen')">Nitrogen</button>
-  <button class="control-btn phosphorus" onclick="activateNutrient('phosphorus')">Phosphorus</button>
-  <button class="control-btn potassium" onclick="activateNutrient('potassium')">Potassium</button>
-  <button class="control-btn reset" onclick="resetSystem()">Reset</button>
-</div>
+            <div class="right-controls">
+                <div class="select-dropdown">
+                    <button class="select-btn" id="selectBtn">
+                        <span id="selectedOption">SELECT</span>
+                    </button>
+                    <div class="dropdown-menu" id="dropdownMenu">
+                        <div class="dropdown-item" data-value="lettuce">Lettuce</div>
+                        <div class="dropdown-item" data-value="capsicum">Capsicum</div>
+                    </div>
+                </div>
+                
+                <div class="current-time" id="currentTime">
+                    Loading...
+                </div>
+            </div>
 
-<div class="hydroponic-section">
-  <div class="ai-module">AI Module</div>
-  <div class="nutrient nutrogen">Nitrogen</div>
-  <div class="nutrient phosphorus">Phosphorus</div>
-  <div class="nutrient potassium">Potassium</div>
-  <div class="tank-pump">Tank & Pump</div>
-  <div class="plant-image"></div>
+            <!-- Submit Button Section -->
+            <div class="submit-section">
+                <button class="submit-btn" onclick="submitNPKValues()">Analyze NPK Values</button>
+            </div>
+        </div>
 
-  <div id="wireNitrogen" class="wire-segment"></div>
-  <div id="pipeNitrogenTank" class="pipe-segment"></div>
-  <div id="wirePhosphorus" class="wire-segment"></div>
-  <div id="pipePhosphorusTank" class="pipe-segment"></div>
-  <div id="wirePotassium" class="wire-segment"></div>
-  <div id="pipePotassiumTank" class="pipe-segment"></div>
-  <div id="pipeTankPlant" class="pipe-segment"></div>
-</div>
+        <!-- Divider Line -->
+        <div class="divider"></div>
 
-<script>
-const thresholds = { nitrogen: 50, phosphorus: 40, potassium: 60 };
+        <!-- Hydroponic System Section -->
+        <div class="hydroponic-section">
+            <div class="system-container">
+                <!-- AI Module -->
+                <div class="ai-module">AI Module</div>
 
-document.getElementById('analyzeBtn').addEventListener('click', () => {
-  const nitrogen = parseFloat(document.getElementById('nitrogen').value);
-  const phosphorus = parseFloat(document.getElementById('phosphorus').value);
-  const potassium = parseFloat(document.getElementById('potassium').value);
+                <!-- Sensors -->
+                <div class="sensor camera">Camera</div>
+                <div class="sensor moisture">Moisture Sensor</div>
+                <div class="sensor light">Light Sensor</div>
 
-  if (nitrogen < thresholds.nitrogen) activateNutrient('nitrogen');
-  if (phosphorus < thresholds.phosphorus) activateNutrient('phosphorus');
-  if (potassium < thresholds.potassium) activateNutrient('potassium');
-});
+                <!-- Plant Image -->
+                <div class="plant-image"></div>
 
-function activateNutrient(nutrient) {
-  resetSystem();
-  const connections = {
-    nitrogen: ['wireNitrogen','pipeNitrogenTank','pipeTankPlant'],
-    phosphorus: ['wirePhosphorus','pipePhosphorusTank','pipeTankPlant'],
-    potassium: ['wirePotassium','pipePotassiumTank','pipeTankPlant']
-  };
-  if (connections[nutrient]) {
-    connections[nutrient].forEach(id => {
-      const el = document.getElementById(id);
-      if(el) {
-        el.classList.add('active');
-        setTimeout(()=>el.classList.remove('active'), 2000);
-      }
-    });
-  }
-  document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
-  const btn = document.querySelector(`.control-btn.${nutrient}`);
-  if(btn) btn.classList.add('active');
-}
+                <!-- Nutrient Solutions -->
+                <div class="nutrient nitrogen">Nitrogen</div>
+                <div class="nutrient potassium">Potassium</div>
+                <div class="nutrient sodium">Sodium</div>
 
-function resetSystem() {
-  document.querySelectorAll('.wire-segment, .pipe-segment').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
-}
-</script>
+                <!-- Tank & Pump -->
+                <div class="tank-pump">Tank & Pump</div>
 
+                <!-- Separate Angular Wires from Left Side of Nutrients -->
+                
+                <!-- Nitrogen Wire Path: AI → Left → Down → Right to Nitrogen left side -->
+                <div class="wire-segment wire-nitrogen-h1" id="wireNitrogen1"></div>
+                <div class="wire-segment wire-nitrogen-v1" id="wireNitrogen2"></div>
+                <div class="wire-segment wire-nitrogen-h2" id="wireNitrogen3"></div>
+
+                <!-- Potassium Wire Path: AI → Left → Down → Right to Potassium left side -->
+                <div class="wire-segment wire-potassium-h1" id="wirePotassium1"></div>
+                <div class="wire-segment wire-potassium-v1" id="wirePotassium2"></div>
+                <div class="wire-segment wire-potassium-h2" id="wirePotassium3"></div>
+
+                <!-- Sodium Wire Path: AI → Left → Down → Right to Sodium left side -->
+                <div class="wire-segment wire-sodium-h1" id="wireSodium1"></div>
+                <div class="wire-segment wire-sodium-v1" id="wireSodium2"></div>
+                <div class="wire-segment wire-sodium-h2" id="wireSodium3"></div>
+
+                <!-- Data Wires (AI to Sensors) - Keep existing -->
+                <div class="data-wire-segment data-wire-ai-camera-h1"></div>
+                <div class="data-wire-segment data-wire-ai-camera-h2"></div>
+
+                <div class="data-wire-segment data-wire-ai-moisture-h1"></div>
+                <div class="data-wire-segment data-wire-ai-moisture-v1"></div>
+                <div class="data-wire-segment data-wire-ai-moisture-h2"></div>
+
+                <div class="data-wire-segment data-wire-ai-light-h1"></div>
+                <div class="data-wire-segment data-wire-ai-light-v1"></div>
+                <div class="data-wire-segment data-wire-ai-light-h2"></div>
+
+                <!-- Angular Pipes (Nutrients to Tank) - Keep existing -->
+                <div class="pipe-segment pipe-nitrogen-tank-h1" id="pipeNitrogen1"></div>
+                <div class="pipe-segment pipe-nitrogen-tank-v1" id="pipeNitrogen2"></div>
+                <div class="pipe-segment pipe-nitrogen-tank-h2" id="pipeNitrogen3"></div>
+
+                <div class="pipe-segment pipe-potassium-tank-h1" id="pipePotassium1"></div>
+                <div class="pipe-segment pipe-potassium-tank-v1" id="pipePotassium2"></div>
+                <div class="pipe-segment pipe-potassium-tank-h2" id="pipePotassium3"></div>
+
+                <div class="pipe-segment pipe-sodium-tank-h1" id="pipeSodium1"></div>
+                <div class="pipe-segment pipe-sodium-tank-v1" id="pipeSodium2"></div>
+                <div class="pipe-segment pipe-sodium-tank-h2" id="pipeSodium3"></div>
+
+                <!-- Main Pipe (Tank to Plant) -->
+                <div class="pipe-tank-plant" id="pipeTankPlant"></div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <button class="control-btn" onclick="activateNutrient('nitrogen')">Activate Nitrogen</button>
+                <button class="control-btn" onclick="activateNutrient('potassium')">Activate Potassium</button>
+                <button class="control-btn" onclick="activateNutrient('sodium')">Activate Sodium</button>
+                <button class="control-btn" onclick="resetSystem()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mode selection functionality
+        const modeButtons = document.querySelectorAll('.mode-btn');
+        
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            });
+        });
+
+        // Dropdown functionality
+        const selectBtn = document.getElementById('selectBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        const selectedOption = document.getElementById('selectedOption');
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+
+        selectBtn.addEventListener('click', () => {
+            selectBtn.classList.toggle('open');
+            dropdownMenu.classList.toggle('show');
+        });
+
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const value = item.getAttribute('data-value');
+                const text = item.textContent;
+                selectedOption.textContent = text;
+                selectBtn.classList.remove('open');
+                dropdownMenu.classList.remove('show');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!selectBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                selectBtn.classList.remove('open');
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // Current time functionality (updates every millisecond)
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleString('en-US', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }) + '.' + now.getMilliseconds().toString().padStart(3, '0');
+            
+            document.getElementById('currentTime').textContent = timeString;
+        }
+
+        // Update time immediately and then every 10ms for smooth millisecond display
+        updateTime();
+        setInterval(updateTime, 10);
+
+        // Input field enhancements
+        const inputFields = document.querySelectorAll('.input-field');
+        
+        inputFields.forEach(field => {
+            field.addEventListener('input', (e) => {
+                // Add any validation or processing logic here
+                console.log(`${field.id}: ${field.value}`);
+            });
+        });
+
+        // Hydroponic system control functions
+        function activateNutrient(nutrient) {
+            // Reset all connections first
+            resetSystem();
+            
+            // Remove active class from all control buttons
+            document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Activate the selected button
+            event.target.classList.add('active');
+            
+            // Activate the corresponding wires and pipes
+            const connections = {
+                nitrogen: ['wireNitrogen', 'pipeNitrogenTank', 'pipeTankPlant'],
+                potassium: ['wirePotassium', 'pipePotassiumTank', 'pipeTankPlant'],
+                sodium: ['wireSodium', 'pipeSodiumTank', 'pipeTankPlant']
+            };
+            
+            if (connections[nutrient]) {
+                connections[nutrient].forEach(connectionId => {
+                    const connection = document.getElementById(connectionId);
+                    if (connection) {
+                        connection.classList.add('active');
+                    }
+                });
+            }
+            
+            // Simulate AI decision making
+            setTimeout(() => {
+                console.log(`AI Module activated ${nutrient.toUpperCase()} solution based on sensor data`);
+            }, 500);
+        }
+
+        function resetSystem() {
+            // Remove active class from all wires and pipes
+            document.querySelectorAll('.wire, .pipe').forEach(connection => {
+                connection.classList.remove('active');
+            });
+            
+            // Remove active class from all control buttons
+            document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+        }
+
+        // Simulate automatic AI decision making based on sensor data
+        function simulateAIDecision() {
+            const nutrients = ['nitrogen', 'potassium', 'sodium'];
+            const randomNutrient = nutrients[Math.floor(Math.random() * nutrients.length)];
+            
+            console.log(`AI analyzing sensor data... Decided to activate ${randomNutrient.toUpperCase()}`);
+            activateNutrient(randomNutrient);
+            
+            // Find and activate the corresponding button
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(randomNutrient)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Auto-simulate AI decisions every 15 seconds (optional)
+        // setInterval(simulateAIDecision, 15000);
+
+        // Form data collection function (updated)
+        function getNKPData() {
+            return {
+                mode: document.querySelector('.mode-btn.active').dataset.mode,
+                selectedCrop: selectedOption.textContent,
+                timestamp: new Date().toISOString(),
+                activeNutrient: document.querySelector('.control-btn.active')?.textContent || 'None'
+            };
+        }
+
+        // Example usage - you can call this function to get all form data
+        // console.log(getNKPData());
+    </script>
 </body>
 </html>
