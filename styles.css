@@ -1,47 +1,68 @@
 body {
   font-family: Arial, sans-serif;
-  margin: 20px;
-  background: #f8fafc;
-  color: #111827;
+  padding: 20px;
+  background: #f0f4f8;
 }
 
 h2 {
-  margin-bottom: 1rem;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.inputs {
-  margin-bottom: 1rem;
+.inputs, .controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
 }
 
-label {
-  display: block;
-  margin: 0.5rem 0;
+.inputs label {
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
 }
 
 button {
-  margin: 0.5rem;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 6px;
+  padding: 10px 15px;
+  font-size: 14px;
   cursor: pointer;
 }
 
-.controls {
-  margin-bottom: 1.5rem;
+.control-btn.active {
+  background-color: #22c55e;
+  color: white;
 }
 
-/* Wires and pipes default (red) */
+.simulation {
+  position: relative;
+  height: 200px;
+  margin: 0 auto;
+  width: 400px;
+  border: 1px solid #ccc;
+  background: white;
+}
+
 .wire-segment, .pipe-segment {
-  width: 200px;
-  height: 8px;
-  margin: 8px 0;
-  background: linear-gradient(90deg, #dc2626, #b91c1c, #dc2626);
-  border-radius: 4px;
+  position: absolute;
+  background: #dc2626; /* Red default */
+  height: 4px;
+  width: 100px;
   transition: all 0.3s ease;
 }
 
-/* Active (green glow) */
 .wire-segment.active, .pipe-segment.active {
-  background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e) !important;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6) !important;
+  background: #22c55e; /* Green active */
 }
+
+/* Example positions (adjust to suit your layout) */
+#wireNitrogen { top: 20px; left: 20px; width: 80px; }
+#pipeNitrogenTank { top: 20px; left: 100px; width: 50px; }
+
+#wirePhosphorus { top: 60px; left: 20px; width: 80px; }
+#pipePhosphorusTank { top: 60px; left: 100px; width: 50px; }
+
+#wirePotassium { top: 100px; left: 20px; width: 80px; }
+#pipePotassiumTank { top: 100px; left: 100px; width: 50px; }
+
+#pipeTankPlant { top: 150px; left: 150px; width: 20px; height: 50px; background: #64748b; }
+#pipeTankPlant.active { background: #22c55e; }
