@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NPK Simulation</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h2>NPK Simulation</h2>
+
+  <!-- Input fields -->
+  <div class="inputs">
+    <label>Nitrogen (N): <input type="number" id="nitrogen" value="20"></label>
+    <label>Phosphorus (P): <input type="number" id="phosphorus" value="20"></label>
+    <label>Potassium (K): <input type="number" id="potassium" value="20"></label>
+    <button id="analyzeBtn">Analyze NPK Values</button>
+  </div>
+
+  <!-- Control buttons -->
+  <div class="controls">
+    <button class="control-btn nitrogen" onclick="activateNutrient('nitrogen')">Nitrogen</button>
+    <button class="control-btn sodium" onclick="activateNutrient('sodium')">Phosphorus</button>
+    <button class="control-btn potassium" onclick="activateNutrient('potassium')">Potassium</button>
+  </div>
+
+  <!-- Simulation wires/pipes -->
+  <div class="simulation">
+    <div id="wireNitrogen" class="wire-segment"></div>
+    <div id="pipeNitrogenTank" class="pipe-segment"></div>
+    <div id="pipeTankPlant" class="pipe-segment"></div>
+
+    <div id="wireSodium" class="wire-segment"></div>
+    <div id="pipeSodiumTank" class="pipe-segment"></div>
+
+    <div id="wirePotassium" class="wire-segment"></div>
+    <div id="pipePotassiumTank" class="pipe-segment"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
