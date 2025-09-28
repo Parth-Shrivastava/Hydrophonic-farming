@@ -1,96 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NPK Simulation</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f4f8; }
-    h2 { text-align: center; margin-bottom: 20px; }
-    .inputs, .controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-    .inputs label { display: flex; flex-direction: column; font-size: 14px; }
-    button { padding: 10px 15px; font-size: 14px; cursor: pointer; }
-    .control-btn.active { background-color: #22c55e; color: white; }
-    .simulation { position: relative; height: 200px; margin: 0 auto; width: 400px; border: 1px solid #ccc; background: white; }
-    .wire-segment, .pipe-segment { position: absolute; background: #dc2626; height: 4px; width: 100px; transition: all 0.3s ease; }
-    .wire-segment.active, .pipe-segment.active { background: #22c55e; }
-    #wireNitrogen { top: 20px; left: 20px; width: 80px; }
-    #pipeNitrogenTank { top: 20px; left: 100px; width: 50px; }
-    #wirePhosphorus { top: 60px; left: 20px; width: 80px; }
-    #pipePhosphorusTank { top: 60px; left: 100px; width: 50px; }
-    #wirePotassium { top: 100px; left: 20px; width: 80px; }
-    #pipePotassiumTank { top: 100px; left: 100px; width: 50px; }
-    #pipeTankPlant { top: 150px; left: 150px; width: 20px; height: 50px; background: #64748b; }
-    #pipeTankPlant.active { background: #22c55e; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPK Hydroponic Simulation</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #e2e8f0; padding: 20px; }
+  h2 { text-align: center; margin-bottom: 20px; }
+  .inputs { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+  .inputs label { display: flex; flex-direction: column; font-size: 14px; }
+  button { padding: 10px 15px; cursor: pointer; }
+  .controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+  .control-btn.active { background: #22c55e; color: white; }
+  .hydroponic-section { position: relative; margin: 0 auto; width: 500px; height: 400px; border: 1px solid #94a3b8; background: white; border-radius: 15px; }
+  .ai-module { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: #4f46e5; color: white; padding: 10px 20px; border-radius: 25px; font-weight: 500; }
+  .plant-image { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 100px; height: 150px; background: #4caf50; border-radius: 10px; }
+  .nutrient { position: absolute; width: 80px; height: 30px; background: #3b82f6; color: white; text-align: center; line-height: 30px; border-radius: 10px; }
+  .nutrogen { top: 60px; left: 20px; }
+  .potassium { top: 150px; left: 20px; }
+  .phosphorus { top: 240px; left: 20px; }
+  .tank-pump { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: #3b82f6; width: 100px; height: 30px; border-radius: 10px; text-align: center; line-height: 30px; color: white; }
+  .wire-segment, .pipe-segment { position: absolute; background: #dc2626; transition: all 0.3s ease; }
+  .wire-segment.active, .pipe-segment.active { background: #22c55e; box-shadow: 0 0 5px #22c55e; }
+  /* Example wire/pipes paths (simplified) */
+  #wireNitrogen { top: 75px; left: 100px; width: 100px; height: 4px; }
+  #pipeNitrogenTank { top: 75px; left: 200px; width: 20px; height: 100px; }
+  #wirePhosphorus { top: 255px; left: 100px; width: 100px; height: 4px; }
+  #pipePhosphorusTank { top: 255px; left: 200px; width: 20px; height: 100px; }
+  #wirePotassium { top: 165px; left: 100px; width: 100px; height: 4px; }
+  #pipePotassiumTank { top: 165px; left: 200px; width: 20px; height: 100px; }
+  #pipeTankPlant { top: 355px; left: 210px; width: 20px; height: 50px; background: #64748b; }
+  #pipeTankPlant.active { background: #22c55e; }
+</style>
 </head>
 <body>
-  <h2>NPK Simulation</h2>
 
-  <div class="inputs">
-    <label>Nitrogen (N): <input type="number" id="nitrogen" value="20"></label>
-    <label>Phosphorus (P): <input type="number" id="phosphorus" value="20"></label>
-    <label>Potassium (K): <input type="number" id="potassium" value="20"></label>
-    <button id="analyzeBtn">Analyze NPK Values</button>
-  </div>
+<h2>NPK Hydroponic Simulation</h2>
 
-  <div class="controls">
-    <button class="control-btn nitrogen" onclick="activateNutrient('nitrogen')">Nitrogen</button>
-    <button class="control-btn phosphorus" onclick="activateNutrient('phosphorus')">Phosphorus</button>
-    <button class="control-btn potassium" onclick="activateNutrient('potassium')">Potassium</button>
-    <button class="control-btn reset" onclick="resetSystem()">Reset</button>
-  </div>
+<div class="inputs">
+  <label>Nitrogen (N): <input type="number" id="nitrogen" value="20"></label>
+  <label>Phosphorus (P): <input type="number" id="phosphorus" value="20"></label>
+  <label>Potassium (K): <input type="number" id="potassium" value="20"></label>
+  <button id="analyzeBtn">Analyze NPK Values</button>
+</div>
 
-  <div class="simulation">
-    <div id="wireNitrogen" class="wire-segment"></div>
-    <div id="pipeNitrogenTank" class="pipe-segment"></div>
-    <div id="wirePhosphorus" class="wire-segment"></div>
-    <div id="pipePhosphorusTank" class="pipe-segment"></div>
-    <div id="wirePotassium" class="wire-segment"></div>
-    <div id="pipePotassiumTank" class="pipe-segment"></div>
-    <div id="pipeTankPlant" class="pipe-segment"></div>
-  </div>
+<div class="controls">
+  <button class="control-btn nitrogen" onclick="activateNutrient('nitrogen')">Nitrogen</button>
+  <button class="control-btn phosphorus" onclick="activateNutrient('phosphorus')">Phosphorus</button>
+  <button class="control-btn potassium" onclick="activateNutrient('potassium')">Potassium</button>
+  <button class="control-btn reset" onclick="resetSystem()">Reset</button>
+</div>
 
-  <script>
-    const thresholds = { nitrogen: 50, phosphorus: 40, potassium: 60 };
+<div class="hydroponic-section">
+  <div class="ai-module">AI Module</div>
+  <div class="nutrient nutrogen">Nitrogen</div>
+  <div class="nutrient phosphorus">Phosphorus</div>
+  <div class="nutrient potassium">Potassium</div>
+  <div class="tank-pump">Tank & Pump</div>
+  <div class="plant-image"></div>
 
-    document.getElementById('analyzeBtn').addEventListener('click', () => {
-      const nitrogen = parseFloat(document.getElementById('nitrogen').value);
-      const phosphorus = parseFloat(document.getElementById('phosphorus').value);
-      const potassium = parseFloat(document.getElementById('potassium').value);
+  <div id="wireNitrogen" class="wire-segment"></div>
+  <div id="pipeNitrogenTank" class="pipe-segment"></div>
+  <div id="wirePhosphorus" class="wire-segment"></div>
+  <div id="pipePhosphorusTank" class="pipe-segment"></div>
+  <div id="wirePotassium" class="wire-segment"></div>
+  <div id="pipePotassiumTank" class="pipe-segment"></div>
+  <div id="pipeTankPlant" class="pipe-segment"></div>
+</div>
 
-      if (nitrogen < thresholds.nitrogen) activateNutrient('nitrogen');
-      if (phosphorus < thresholds.phosphorus) activateNutrient('phosphorus');
-      if (potassium < thresholds.potassium) activateNutrient('potassium');
-    });
+<script>
+const thresholds = { nitrogen: 50, phosphorus: 40, potassium: 60 };
 
-    function activateNutrient(nutrient) {
-      resetSystem();
-      const connections = {
-        nitrogen: ['wireNitrogen', 'pipeNitrogenTank', 'pipeTankPlant'],
-        phosphorus: ['wirePhosphorus', 'pipePhosphorusTank', 'pipeTankPlant'],
-        potassium: ['wirePotassium', 'pipePotassiumTank', 'pipeTankPlant']
-      };
+document.getElementById('analyzeBtn').addEventListener('click', () => {
+  const nitrogen = parseFloat(document.getElementById('nitrogen').value);
+  const phosphorus = parseFloat(document.getElementById('phosphorus').value);
+  const potassium = parseFloat(document.getElementById('potassium').value);
 
-      if (connections[nutrient]) {
-        connections[nutrient].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) {
-            el.classList.add('active');
-            setTimeout(() => el.classList.remove('active'), 2000);
-          }
-        });
+  if (nitrogen < thresholds.nitrogen) activateNutrient('nitrogen');
+  if (phosphorus < thresholds.phosphorus) activateNutrient('phosphorus');
+  if (potassium < thresholds.potassium) activateNutrient('potassium');
+});
+
+function activateNutrient(nutrient) {
+  resetSystem();
+  const connections = {
+    nitrogen: ['wireNitrogen','pipeNitrogenTank','pipeTankPlant'],
+    phosphorus: ['wirePhosphorus','pipePhosphorusTank','pipeTankPlant'],
+    potassium: ['wirePotassium','pipePotassiumTank','pipeTankPlant']
+  };
+  if (connections[nutrient]) {
+    connections[nutrient].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) {
+        el.classList.add('active');
+        setTimeout(()=>el.classList.remove('active'), 2000);
       }
+    });
+  }
+  document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+  const btn = document.querySelector(`.control-btn.${nutrient}`);
+  if(btn) btn.classList.add('active');
+}
 
-      document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
-      const btn = document.querySelector(`.control-btn.${nutrient}`);
-      if (btn) btn.classList.add('active');
-    }
+function resetSystem() {
+  document.querySelectorAll('.wire-segment, .pipe-segment').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+}
+</script>
 
-    function resetSystem() {
-      document.querySelectorAll('.wire-segment, .pipe-segment').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
-    }
-  </script>
 </body>
 </html>
