@@ -20,21 +20,27 @@
   <!-- Control buttons -->
   <div class="controls">
     <button class="control-btn nitrogen" onclick="activateNutrient('nitrogen')">Nitrogen</button>
-    <button class="control-btn sodium" onclick="activateNutrient('sodium')">Phosphorus</button>
+    <button class="control-btn phosphorus" onclick="activateNutrient('phosphorus')">Phosphorus</button>
     <button class="control-btn potassium" onclick="activateNutrient('potassium')">Potassium</button>
+    <button class="control-btn reset" onclick="resetSystem()">Reset</button>
   </div>
 
   <!-- Simulation wires/pipes -->
   <div class="simulation">
+    <!-- Nitrogen -->
     <div id="wireNitrogen" class="wire-segment"></div>
     <div id="pipeNitrogenTank" class="pipe-segment"></div>
-    <div id="pipeTankPlant" class="pipe-segment"></div>
 
-    <div id="wireSodium" class="wire-segment"></div>
-    <div id="pipeSodiumTank" class="pipe-segment"></div>
+    <!-- Phosphorus -->
+    <div id="wirePhosphorus" class="wire-segment"></div>
+    <div id="pipePhosphorusTank" class="pipe-segment"></div>
 
+    <!-- Potassium -->
     <div id="wirePotassium" class="wire-segment"></div>
     <div id="pipePotassiumTank" class="pipe-segment"></div>
+
+    <!-- Main pipe to plant -->
+    <div id="pipeTankPlant" class="pipe-segment"></div>
   </div>
 
   <script src="script.js"></script>
