@@ -1,0 +1,47 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f8fafc;
+  color: #111827;
+}
+
+h2 {
+  margin-bottom: 1rem;
+}
+
+.inputs {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin: 0.5rem 0;
+}
+
+button {
+  margin: 0.5rem;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.controls {
+  margin-bottom: 1.5rem;
+}
+
+/* Wires and pipes default (red) */
+.wire-segment, .pipe-segment {
+  width: 200px;
+  height: 8px;
+  margin: 8px 0;
+  background: linear-gradient(90deg, #dc2626, #b91c1c, #dc2626);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+/* Active (green glow) */
+.wire-segment.active, .pipe-segment.active {
+  background: linear-gradient(90deg, #22c55e, #16a34a, #22c55e) !important;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6) !important;
+}
