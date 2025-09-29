@@ -752,6 +752,13 @@
             sodium: 40
         };
 
+        // Track current active nutrients
+        let activeNutrients = {
+            nitrogen: false,
+            potassium: false,
+            sodium: false
+        };
+
         // Mode selection functionality
         const modeButtons = document.querySelectorAll('.mode-btn');
         
@@ -759,6 +766,8 @@
             button.addEventListener('click', () => {
                 modeButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
+                // Re-evaluate all inputs when mode changes
+                evaluateAllInputs();
             });
         });
 
@@ -817,14 +826,16 @@
         inputFields.forEach(field => {
             field.addEventListener('input', (e) => {
                 checkThreshold(field.id, field.value);
+                evaluateAllInputs();
             });
             
             field.addEventListener('change', (e) => {
                 checkThreshold(field.id, field.value);
+                evaluateAllInputs();
             });
         });
 
-        // Function to check if value is below threshold and trigger activation
+        // Function to check if value is below threshold and update visual indicators
         function checkThreshold(inputId, value) {
             const numericValue = parseFloat(value) || 0;
             let nutrientType = '';
@@ -847,45 +858,73 @@
                 const inputField = document.getElementById(inputId);
                 
                 if (numericValue < threshold && numericValue > 0) {
-                    // Value is below threshold - activate nutrient
+                    // Value is below threshold
                     inputField.classList.remove('normal');
                     inputField.classList.add('low');
                     indicator.classList.remove('normal');
                     indicator.classList.add('low');
-                    
-                    // Auto-activate the nutrient if in AI mode
-                    if (document.querySelector('.mode-btn.active').dataset.mode === 'AI') {
-                        activateNutrient(nutrientType);
-                        
-                        // Update control button state
-                        document.querySelectorAll('.control-btn').forEach(btn => {
-                            if (btn.textContent.toLowerCase().includes(nutrientType)) {
-                                btn.classList.add('active');
-                            } else {
-                                btn.classList.remove('active');
-                            }
-                        });
-                    }
                 } else {
                     // Value is normal or above threshold
                     inputField.classList.remove('low');
                     inputField.classList.add('normal');
                     indicator.classList.remove('low');
                     indicator.classList.add('normal');
-                    
-                    // Reset this nutrient if it was activated
-                    if (document.querySelector('.control-btn.active')?.textContent.toLowerCase().includes(nutrientType)) {
-                        resetSystem();
-                    }
                 }
             }
         }
 
+        // Evaluate all inputs and activate nutrients based on thresholds
+        function evaluateAllInputs() {
+            if (document.querySelector('.mode-btn.active').dataset.mode !== 'AI') {
+                return; // Only auto-activate in AI mode
+            }
+
+            const nitrogenValue = parseFloat(document.getElementById('nitrogenInput').value) || 0;
+            const potassiumValue = parseFloat(document.getElementById('potassiumInput').value) || 0;
+            const sodiumValue = parseFloat(document.getElementById('sodiumInput').value) || 0;
+
+            // Reset all nutrients first
+            resetSystem();
+            activeNutrients = { nitrogen: false, potassium: false, sodium: false };
+
+            // Check each nutrient and activate if below threshold
+            if (nitrogenValue < THRESHOLDS.nitrogen && nitrogenValue > 0) {
+                activateNutrient('nitrogen');
+                activeNutrients.nitrogen = true;
+            }
+            
+            if (potassiumValue < THRESHOLDS.potassium && potassiumValue > 0) {
+                activateNutrient('potassium');
+                activeNutrients.potassium = true;
+            }
+            
+            if (sodiumValue < THRESHOLDS.sodium && sodiumValue > 0) {
+                activateNutrient('sodium');
+                activeNutrients.sodium = true;
+            }
+
+            // Update control buttons
+            updateControlButtons();
+        }
+
+        // Update control button states based on active nutrients
+        function updateControlButtons() {
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                const btnText = btn.textContent.toLowerCase();
+                if (btnText.includes('nitrogen') && activeNutrients.nitrogen) {
+                    btn.classList.add('active');
+                } else if (btnText.includes('potassium') && activeNutrients.potassium) {
+                    btn.classList.add('active');
+                } else if (btnText.includes('sodium') && activeNutrients.sodium) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
         // Hydroponic system control functions
         function activateNutrient(nutrient) {
-            // Reset all connections first
-            resetSystem();
-            
             // Activate the corresponding wires and pipes based on the nutrient
             if (nutrient === 'nitrogen') {
                 // Activate Nitrogen wires (AI to Nitrogen)
@@ -949,9 +988,17 @@
             
             // Remove active class from main pipe
             document.getElementById('pipeTankPlant').classList.remove('active');
-            
-            // Remove active class from all control buttons
-            document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
+        }
+
+        // Manual activation function (for control buttons)
+        function activateNutrientManual(nutrient) {
+            if (document.querySelector('.mode-btn.active').dataset.mode === 'AI') {
+                alert('Switch to Manual (H) mode to manually control nutrients');
+                return;
+            }
+            activateNutrient(nutrient);
+            activeNutrients[nutrient] = true;
+            updateControlButtons();
         }
 
         // Submit NPK values function
@@ -966,10 +1013,8 @@
                 sodium: sodiumValue
             });
             
-            // Check all thresholds on submit
-            checkThreshold('nitrogenInput', nitrogenValue);
-            checkThreshold('potassiumInput', potassiumValue);
-            checkThreshold('sodiumInput', sodiumValue);
+            // Evaluate all inputs on submit
+            evaluateAllInputs();
             
             // Here you would typically send this data to your backend
             alert(`NPK Values Submitted!\nNitrogen: ${nitrogenValue} ppm\nPotassium: ${potassiumValue} ppm\nPhosphorus: ${sodiumValue} ppm`);
@@ -979,6 +1024,15 @@
         document.getElementById('nitrogenIndicator').classList.add('normal');
         document.getElementById('potassiumIndicator').classList.add('normal');
         document.getElementById('sodiumIndicator').classList.add('normal');
+
+        // Update control button event listeners to use manual function
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            const originalOnclick = btn.getAttribute('onclick');
+            if (originalOnclick && originalOnclick.includes('activateNutrient')) {
+                const nutrient = originalOnclick.match(/'([^']+)'/)[1];
+                btn.setAttribute('onclick', `activateNutrientManual('${nutrient}')`);
+            }
+        });
     </script>
 </body>
 </html>
