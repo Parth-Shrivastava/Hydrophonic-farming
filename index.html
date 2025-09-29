@@ -204,6 +204,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            position: relative;
         }
 
         .input-label {
@@ -235,6 +236,16 @@
         .input-field:focus {
             transform: translateY(-2px);
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .input-field.low {
+            border: 2px solid #ef4444;
+            background: #fef2f2;
+        }
+
+        .input-field.normal {
+            border: 2px solid #10b981;
+            background: #f0fdf4;
         }
 
         .input-limits {
@@ -280,10 +291,20 @@
         .input-indicator {
             width: 25px;
             height: 25px;
-            background: white;
             border-radius: 50%;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-left: auto;
+            transition: all 0.3s ease;
+        }
+
+        .input-indicator.low {
+            background: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .input-indicator.normal {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
         }
 
         /* Divider line */
@@ -596,23 +617,23 @@
                 <div class="input-group">
                     <div class="input-label">Nitrogen</div>
                     <input type="number" class="input-field" placeholder="Enter N value" id="nitrogenInput" min="0" max="1000" step="0.1">
-                    <div class="input-indicator"></div>
+                    <div class="input-indicator" id="nitrogenIndicator"></div>
                 </div>
-                <div class="input-limits">Range: 0-1000 ppm</div>
+                <div class="input-limits">Range: 0-1000 ppm (Activate if &lt; 50)</div>
                 
                 <div class="input-group">
                     <div class="input-label">Potassium</div>
                     <input type="number" class="input-field" placeholder="Enter K value" id="potassiumInput" min="0" max="1000" step="0.1">
-                    <div class="input-indicator"></div>
+                    <div class="input-indicator" id="potassiumIndicator"></div>
                 </div>
-                <div class="input-limits">Range: 0-1000 ppm</div>
+                <div class="input-limits">Range: 0-1000 ppm (Activate if &lt; 60)</div>
                 
                 <div class="input-group">
                     <div class="input-label">Phosphorus</div>
                     <input type="number" class="input-field" placeholder="Enter P value" id="sodiumInput" min="0" max="1000" step="0.1">
-                    <div class="input-indicator"></div>
+                    <div class="input-indicator" id="sodiumIndicator"></div>
                 </div>
-                <div class="input-limits">Range: 0-1000 ppm</div>
+                <div class="input-limits">Range: 0-1000 ppm (Activate if &lt; 40)</div>
             </div>
 
             <div class="center-modes">
@@ -724,6 +745,13 @@
     </div>
 
     <script>
+        // Define thresholds
+        const THRESHOLDS = {
+            nitrogen: 50,
+            potassium: 60,
+            sodium: 40
+        };
+
         // Mode selection functionality
         const modeButtons = document.querySelectorAll('.mode-btn');
         
@@ -783,26 +811,80 @@
         updateTime();
         setInterval(updateTime, 10);
 
-        // Input field enhancements
+        // Input field enhancements with automatic threshold checking
         const inputFields = document.querySelectorAll('.input-field');
         
         inputFields.forEach(field => {
             field.addEventListener('input', (e) => {
-                // Add any validation or processing logic here
-                console.log(`${field.id}: ${field.value}`);
+                checkThreshold(field.id, field.value);
+            });
+            
+            field.addEventListener('change', (e) => {
+                checkThreshold(field.id, field.value);
             });
         });
 
-        // Hydroponic system control functions - DEBUGGED VERSION
+        // Function to check if value is below threshold and trigger activation
+        function checkThreshold(inputId, value) {
+            const numericValue = parseFloat(value) || 0;
+            let nutrientType = '';
+            let indicator = null;
+            
+            // Determine which nutrient we're checking
+            if (inputId === 'nitrogenInput') {
+                nutrientType = 'nitrogen';
+                indicator = document.getElementById('nitrogenIndicator');
+            } else if (inputId === 'potassiumInput') {
+                nutrientType = 'potassium';
+                indicator = document.getElementById('potassiumIndicator');
+            } else if (inputId === 'sodiumInput') {
+                nutrientType = 'sodium';
+                indicator = document.getElementById('sodiumIndicator');
+            }
+            
+            if (nutrientType && indicator) {
+                const threshold = THRESHOLDS[nutrientType];
+                const inputField = document.getElementById(inputId);
+                
+                if (numericValue < threshold && numericValue > 0) {
+                    // Value is below threshold - activate nutrient
+                    inputField.classList.remove('normal');
+                    inputField.classList.add('low');
+                    indicator.classList.remove('normal');
+                    indicator.classList.add('low');
+                    
+                    // Auto-activate the nutrient if in AI mode
+                    if (document.querySelector('.mode-btn.active').dataset.mode === 'AI') {
+                        activateNutrient(nutrientType);
+                        
+                        // Update control button state
+                        document.querySelectorAll('.control-btn').forEach(btn => {
+                            if (btn.textContent.toLowerCase().includes(nutrientType)) {
+                                btn.classList.add('active');
+                            } else {
+                                btn.classList.remove('active');
+                            }
+                        });
+                    }
+                } else {
+                    // Value is normal or above threshold
+                    inputField.classList.remove('low');
+                    inputField.classList.add('normal');
+                    indicator.classList.remove('low');
+                    indicator.classList.add('normal');
+                    
+                    // Reset this nutrient if it was activated
+                    if (document.querySelector('.control-btn.active')?.textContent.toLowerCase().includes(nutrientType)) {
+                        resetSystem();
+                    }
+                }
+            }
+        }
+
+        // Hydroponic system control functions
         function activateNutrient(nutrient) {
             // Reset all connections first
             resetSystem();
-            
-            // Remove active class from all control buttons
-            document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
-            
-            // Activate the selected button
-            event.target.classList.add('active');
             
             // Activate the corresponding wires and pipes based on the nutrient
             if (nutrient === 'nitrogen') {
@@ -872,36 +954,6 @@
             document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
         }
 
-        // Simulate automatic AI decision making based on sensor data
-        function simulateAIDecision() {
-            const nutrients = ['nitrogen', 'potassium', 'sodium'];
-            const randomNutrient = nutrients[Math.floor(Math.random() * nutrients.length)];
-            
-            console.log(`AI analyzing sensor data... Decided to activate ${randomNutrient.toUpperCase()}`);
-            activateNutrient(randomNutrient);
-            
-            // Find and activate the corresponding button
-            const buttons = document.querySelectorAll('.control-btn');
-            buttons.forEach(btn => {
-                if (btn.textContent.toLowerCase().includes(randomNutrient)) {
-                    btn.classList.add('active');
-                }
-            });
-        }
-
-        // Auto-simulate AI decisions every 15 seconds (optional)
-        // setInterval(simulateAIDecision, 15000);
-
-        // Form data collection function (updated)
-        function getNKPData() {
-            return {
-                mode: document.querySelector('.mode-btn.active').dataset.mode,
-                selectedCrop: selectedOption.textContent,
-                timestamp: new Date().toISOString(),
-                activeNutrient: document.querySelector('.control-btn.active')?.textContent || 'None'
-            };
-        }
-
         // Submit NPK values function
         function submitNPKValues() {
             const nitrogenValue = document.getElementById('nitrogenInput').value;
@@ -914,12 +966,19 @@
                 sodium: sodiumValue
             });
             
+            // Check all thresholds on submit
+            checkThreshold('nitrogenInput', nitrogenValue);
+            checkThreshold('potassiumInput', potassiumValue);
+            checkThreshold('sodiumInput', sodiumValue);
+            
             // Here you would typically send this data to your backend
             alert(`NPK Values Submitted!\nNitrogen: ${nitrogenValue} ppm\nPotassium: ${potassiumValue} ppm\nPhosphorus: ${sodiumValue} ppm`);
         }
 
-        // Example usage - you can call this function to get all form data
-        // console.log(getNKPData());
+        // Initialize indicators
+        document.getElementById('nitrogenIndicator').classList.add('normal');
+        document.getElementById('potassiumIndicator').classList.add('normal');
+        document.getElementById('sodiumIndicator').classList.add('normal');
     </script>
 </body>
 </html>
