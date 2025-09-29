@@ -793,7 +793,7 @@
             });
         });
 
-        // Hydroponic system control functions
+        // Hydroponic system control functions - DEBUGGED VERSION
         function activateNutrient(nutrient) {
             // Reset all connections first
             resetSystem();
@@ -804,20 +804,48 @@
             // Activate the selected button
             event.target.classList.add('active');
             
-            // Activate the corresponding wires and pipes
-            const connections = {
-                nitrogen: ['wireNitrogen', 'pipeNitrogenTank', 'pipeTankPlant'],
-                potassium: ['wirePotassium', 'pipePotassiumTank', 'pipeTankPlant'],
-                sodium: ['wireSodium', 'pipeSodiumTank', 'pipeTankPlant']
-            };
-            
-            if (connections[nutrient]) {
-                connections[nutrient].forEach(connectionId => {
-                    const connection = document.getElementById(connectionId);
-                    if (connection) {
-                        connection.classList.add('active');
-                    }
-                });
+            // Activate the corresponding wires and pipes based on the nutrient
+            if (nutrient === 'nitrogen') {
+                // Activate Nitrogen wires (AI to Nitrogen)
+                document.getElementById('wireNitrogen1').classList.add('active');
+                document.getElementById('wireNitrogen2').classList.add('active');
+                document.getElementById('wireNitrogen3').classList.add('active');
+                
+                // Activate Nitrogen pipes (Nitrogen to Tank)
+                document.getElementById('pipeNitrogen1').classList.add('active');
+                document.getElementById('pipeNitrogen2').classList.add('active');
+                document.getElementById('pipeNitrogen3').classList.add('active');
+                
+                // Activate main pipe (Tank to Plant)
+                document.getElementById('pipeTankPlant').classList.add('active');
+            } 
+            else if (nutrient === 'potassium') {
+                // Activate Potassium wires (AI to Potassium)
+                document.getElementById('wirePotassium1').classList.add('active');
+                document.getElementById('wirePotassium2').classList.add('active');
+                document.getElementById('wirePotassium3').classList.add('active');
+                
+                // Activate Potassium pipes (Potassium to Tank)
+                document.getElementById('pipePotassium1').classList.add('active');
+                document.getElementById('pipePotassium2').classList.add('active');
+                document.getElementById('pipePotassium3').classList.add('active');
+                
+                // Activate main pipe (Tank to Plant)
+                document.getElementById('pipeTankPlant').classList.add('active');
+            } 
+            else if (nutrient === 'sodium') {
+                // Activate Sodium wires (AI to Sodium)
+                document.getElementById('wireSodium1').classList.add('active');
+                document.getElementById('wireSodium2').classList.add('active');
+                document.getElementById('wireSodium3').classList.add('active');
+                
+                // Activate Sodium pipes (Sodium to Tank)
+                document.getElementById('pipeSodium1').classList.add('active');
+                document.getElementById('pipeSodium2').classList.add('active');
+                document.getElementById('pipeSodium3').classList.add('active');
+                
+                // Activate main pipe (Tank to Plant)
+                document.getElementById('pipeTankPlant').classList.add('active');
             }
             
             // Simulate AI decision making
@@ -827,10 +855,18 @@
         }
 
         function resetSystem() {
-            // Remove active class from all wires and pipes
-            document.querySelectorAll('.wire, .pipe').forEach(connection => {
-                connection.classList.remove('active');
+            // Remove active class from all wire segments
+            document.querySelectorAll('.wire-segment').forEach(wire => {
+                wire.classList.remove('active');
             });
+            
+            // Remove active class from all pipe segments
+            document.querySelectorAll('.pipe-segment').forEach(pipe => {
+                pipe.classList.remove('active');
+            });
+            
+            // Remove active class from main pipe
+            document.getElementById('pipeTankPlant').classList.remove('active');
             
             // Remove active class from all control buttons
             document.querySelectorAll('.control-btn').forEach(btn => btn.classList.remove('active'));
@@ -864,6 +900,22 @@
                 timestamp: new Date().toISOString(),
                 activeNutrient: document.querySelector('.control-btn.active')?.textContent || 'None'
             };
+        }
+
+        // Submit NPK values function
+        function submitNPKValues() {
+            const nitrogenValue = document.getElementById('nitrogenInput').value;
+            const potassiumValue = document.getElementById('potassiumInput').value;
+            const sodiumValue = document.getElementById('sodiumInput').value;
+            
+            console.log('NPK Values Submitted:', {
+                nitrogen: nitrogenValue,
+                potassium: potassiumValue,
+                sodium: sodiumValue
+            });
+            
+            // Here you would typically send this data to your backend
+            alert(`NPK Values Submitted!\nNitrogen: ${nitrogenValue} ppm\nPotassium: ${potassiumValue} ppm\nPhosphorus: ${sodiumValue} ppm`);
         }
 
         // Example usage - you can call this function to get all form data
